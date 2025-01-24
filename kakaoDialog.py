@@ -4,6 +4,7 @@ from collections import defaultdict
 import re
 from datetime import datetime, timedelta
 
+print('tk version:', tk.TkVersion)
 def check_authentication_from_file(file_path, keywords, duration, isDurationFixed, is_pc_selected):
     auth_count = defaultdict(int)
     already_authenticated = defaultdict(set)
@@ -24,7 +25,6 @@ def check_authentication_from_file(file_path, keywords, duration, isDurationFixe
       with open(file_path, 'r', encoding='utf-8') as file:
         content = file.readlines()
         if is_pc_selected == False:
-          print("is_pc_selected", is_pc_selected)
           for line in content:
             date_match = re.match(r'(\d{4}\.\s*\d{1,2}\.\s*\d{1,2}\.\s*([오후|오전]+)\s*(\d{1,2}):(\d{2})),\s*(.*?):\s*(.*)', line)
 
@@ -37,7 +37,6 @@ def check_authentication_from_file(file_path, keywords, duration, isDurationFixe
 
               try:
                 message_date = datetime.strptime(date_str, '%Y. %m. %d. %p %H:%M')
-
                 if isDurationFixed:
                   if monday >= message_date >= one_week_ago:
                     date_key = message_date.strftime('%Y-%m-%d')
@@ -94,8 +93,7 @@ def check_authentication_from_file(file_path, keywords, duration, isDurationFixe
     except Exception as e:
       messagebox.showerror("Error", str(e))
       return None
-
-    return auth_count
+    return (auth_count, already_authenticated)
 
 def load_file():
   file_path = filedialog.askopenfilename(title="Select text file", filetypes=[('csv files',"*.csv")])
@@ -125,11 +123,13 @@ def load_file():
       result = check_authentication_from_file(file_path, keywords, duration, True, is_pc_selected.get())
     else:
       result = check_authentication_from_file(file_path, keywords, duration, False, is_pc_selected.get())
-    if result is not None:
+    if result[0] is not None:
       output_text.delete(1.0, tk.END)
-      if result:
-        for user, count in result.items():
-          output_text.insert(tk.END, f"{user}: {count}회 인증\n")
+      if result[0]:
+        for user, count in result[0].items():
+          for inner_user, timestamps in result[1].items():
+            if inner_user == user:
+              output_text.insert(tk.END, f"{user}: {count}회 인증\n{timestamps}\n")
       else:
         output_text.insert(tk.END, "인증할 내용이 없습니다.")
 
