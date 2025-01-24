@@ -4,7 +4,6 @@ from collections import defaultdict
 import re
 from datetime import datetime, timedelta
 
-print('tk version:', tk.TkVersion)
 def check_authentication_from_file(file_path, keywords, duration, isDurationFixed, is_pc_selected):
     auth_count = defaultdict(int)
     already_authenticated = defaultdict(set)
@@ -145,6 +144,7 @@ keyword_label = tk.Label(keyword_frame, text="인증 키워드 입력 (쉼표로
 keyword_label.pack(side=tk.LEFT)
 
 keyword_entry = tk.Entry(keyword_frame, width=30)
+keyword_entry.insert(-1, '오운완')
 keyword_entry.pack(side=tk.LEFT)
 
 date_selection = tk.StringVar(value="fixed")
